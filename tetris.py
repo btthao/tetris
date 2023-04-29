@@ -13,10 +13,19 @@ class Tetris:
             
         for c in range(0, NUM_COLS+1):
             pygame.draw.line(self.surface, LINE_COLOR, (BORDER_WIDTH + c * TILE_SIZE, BORDER_WIDTH), (BORDER_WIDTH + c * TILE_SIZE, HEIGHT + BORDER_WIDTH))
-            
-    def rotate(self):
-        self.nextBlock.rotate()
+    
+    def input(self, key):
         
-    def play(self):
+        if key == pygame.K_UP:
+            self.nextBlock.rotate()
+        
+        if key == pygame.K_LEFT:
+            self.nextBlock.move_left()
+        
+        if key == pygame.K_RIGHT:
+            self.nextBlock.move_right()
+        
+        
+    def update(self):
         self.draw_grid()
         self.nextBlock.draw()

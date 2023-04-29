@@ -18,12 +18,10 @@ class Game:
                     sys.exit()
                     
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
-                        self.tetris.rotate()
+                    self.tetris.input(event.key)
 
-                    
             self.screen.fill(BG_COLOR)
-            self.tetris.play()
+            self.tetris.update()
             pygame.display.update()
             self.clock.tick(FPS)
 

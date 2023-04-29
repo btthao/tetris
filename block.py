@@ -39,3 +39,8 @@ class Block:
         
         if self.index > 3:
             self.index = 0
+    def move_left(self):
+        self.startPoint -= (TILE_SIZE, 0)
+        
+    def move_right(self):
+        self.startPoint += (TILE_SIZE, 0)
