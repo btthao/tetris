@@ -7,6 +7,7 @@ class Tetris:
         self.surface = pygame.display.get_surface()
         self.grid = [[0 for c in range(NUM_COLS)] for r in range(NUM_ROWS)]
         self.currentBlock = Block(self.grid)
+        self.gameOver = False
         
     def draw_grid(self):
         for r in range(0, NUM_ROWS+1):
@@ -40,14 +41,22 @@ class Tetris:
     
     def update_grid(self, tiles_pos, color):
         for (r,c) in tiles_pos:
+            if (self.grid[r][c]):
+                print('gameover')
+                self.gameOver = True
             self.grid[r][c] = color
             
     def update(self):
         self.draw_grid()
         self.fill_blocks()
-        self.currentBlock.draw()
         
-        if self.currentBlock.collided:
+        if self.gameOver:
+            return
+        
+        self.currentBlock.draw()
+        self.currentBlock.move_down()
+        
+        if self.currentBlock.freeze:
             self.update_grid(self.currentBlock.tiles_pos, self.currentBlock.color)
             del self.currentBlock
             self.currentBlock = Block(self.grid)

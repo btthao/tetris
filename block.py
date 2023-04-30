@@ -4,34 +4,29 @@ from random import randrange
 
 class Block:
     def __init__(self, grid):
-        self.grid = grid
         choice = randrange(len(SHAPES))
+        self.grid = grid
         self.shape = SHAPES[choice]
         self.color = COLORS[choice]
         self.rotatedShapes = self.create_block_rotations()
         self.index = 0
-        self.startPoint = pygame.math.Vector2(GAME_BORDER + TILE_SIZE * 3, GAME_BORDER)
+        self.startPoint = pygame.math.Vector2(GAME_BORDER + TILE_SIZE * int(NUM_COLS//3), GAME_BORDER)
         self.surface = pygame.display.get_surface()
         self.lastMoveTime = pygame.time.get_ticks()
         self.cooldown = 500
-        self.speed = (0, TILE_SIZE)
-        self.collided = False
-        self.tiles_pos = []
+        self.freeze = False
+        self.tiles_pos = self.get_tiles_pos()
+    
+    def __del__(self):
+      print('Object gets destroyed')
 
     def draw(self):
-        if self.collided:
-            return
-
-        self.move_down()
-        
-        for r, row in enumerate(self.shape):
-            for c, val in enumerate(row):
-                if val == 1:
-                    left = self.startPoint[0] + c*TILE_SIZE + TILE_BORDER
-                    top = self.startPoint[1] + r*TILE_SIZE + TILE_BORDER
-                    size = TILE_SIZE - TILE_BORDER
-                    block_rect = pygame.Rect(left, top, size, size)
-                    pygame.draw.rect(self.surface, self.color, block_rect)
+        for (r,c) in self.tiles_pos:
+            left = GAME_BORDER + c*TILE_SIZE + TILE_BORDER
+            top = GAME_BORDER + r*TILE_SIZE + TILE_BORDER
+            size = TILE_SIZE - TILE_BORDER
+            block_rect = pygame.Rect(left, top, size, size)
+            pygame.draw.rect(self.surface, self.color, block_rect)
 
     def create_block_rotations(self):
         rotations = [self.shape]
@@ -45,51 +40,79 @@ class Block:
         return rotations
     
     def rotate(self):
-        if self.collided:
+        if self.freeze:
             return
+
+        newIdx = self.index + 1
         
-        self.index += 1
+        if newIdx > 3:
+            newIdx = 0
         
-        if self.index > 3:
-            self.index = 0
+        newTilesPos = self.get_tiles_pos(self.rotatedShapes[newIdx])
         
-        self.shape = self.rotatedShapes[self.index]
+        if not self.check_collision(newTilesPos):
+            self.index = newIdx
+            self.shape = self.rotatedShapes[newIdx]
+            self.tiles_pos = newTilesPos
     
-    def check_collision(self):
-        for (row,col) in self.tiles_pos:
-            if row + 1 >= len(self.grid) or self.grid[row+1][col]:
-                self.collided = True
-                print('collided')
+    def check_collision(self, tilesPos = None):
+        if tilesPos == None:
+            tilesPos = self.tiles_pos
+            
+        for (row,col) in tilesPos:
+            if col < 0 or col >= NUM_COLS or row < 0 or row >= NUM_ROWS or self.grid[row][col]:
+                return True
+        
+        return False
     
-    def update_tiles_pos(self): 
+    def get_tiles_pos(self, shape = None): 
+        if shape == None:
+            shape = self.shape
+            
         pos = []
         
-        for i, _ in enumerate(self.shape):
-            for j, val in enumerate(self.shape[i]):
+        for i, row in enumerate(shape):
+            for j, val in enumerate(row):
                 if val == 1:
-                    row = int((self.startPoint[1] + i*TILE_SIZE - GAME_BORDER) / TILE_SIZE)
-                    col = int((self.startPoint[0] + j*TILE_SIZE - GAME_BORDER) / TILE_SIZE)
-                    pos.append((row,col))
+                    r = int((self.startPoint[1] + i*TILE_SIZE - GAME_BORDER) / TILE_SIZE)
+                    c = int((self.startPoint[0] + j*TILE_SIZE - GAME_BORDER) / TILE_SIZE)
+                    pos.append((r, c))
         
-        self.tiles_pos = pos
+        return pos
+    
+    def check_can_move(self, direction):
+        for (row,col) in self.tiles_pos:
+            if direction == 'left':
+                if col <= 0 or self.grid[row][col-1]:
+                    return False
+            if direction == 'right':
+                if col >= NUM_COLS - 1 or self.grid[row][col+1]:
+                    return False
+            if direction == 'down':
+                if row >= NUM_ROWS - 1 or self.grid[row+1][col]:
+                    return False
+        return True
+    
     def move_down(self):
-        if self.collided:
-            return
-        
-        now = pygame.time.get_ticks()
-
-        if now - self.lastMoveTime >= self.cooldown:
-            self.lastMoveTime = now
-            self.startPoint += self.speed
-            self.update_tiles_pos()
-            self.check_collision()
+        if pygame.time.get_ticks() - self.lastMoveTime >= self.cooldown:
+            if not self.check_can_move('down'):
+                self.freeze = True
+                return
+            self.move_block(DOWN_MOVE)
             
     def move_left(self):
-        if self.collided:
-            return
-        self.startPoint -= (TILE_SIZE, 0)
+        if self.check_can_move('left'):
+            self.move_block(LEFT_MOVE)
         
     def move_right(self):
-        if self.collided:
+        if self.check_can_move('right'):
+            self.move_block(RIGHT_MOVE)
+            
+    def move_block(self, direction):
+        if self.freeze:
             return
-        self.startPoint += (TILE_SIZE, 0)
+
+        self.lastMoveTime = pygame.time.get_ticks()
+        self.startPoint += direction
+        self.tiles_pos = self.get_tiles_pos()
+        # self.check_collision()
