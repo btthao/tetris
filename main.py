@@ -5,7 +5,7 @@ from tetris import Tetris
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH + INFO_AREA_WIDTH + 2*BORDER_WIDTH, HEIGHT+ 2*BORDER_WIDTH))
+        self.screen = pygame.display.set_mode((WIDTH + INFO_AREA_WIDTH + 2*GAME_BORDER, HEIGHT+ 2*GAME_BORDER))
         pygame.display.set_caption('Tetris')
         self.clock = pygame.time.Clock()
         self.tetris = Tetris()
