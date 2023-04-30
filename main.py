@@ -17,8 +17,8 @@ class Game:
                     pygame.quit()
                     sys.exit()
                     
-                if event.type == pygame.KEYDOWN:
-                    self.tetris.input(event.key)
+                if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+                    self.tetris.input(event.type, event.key)
 
             self.screen.fill(BG_COLOR)
             self.tetris.update()

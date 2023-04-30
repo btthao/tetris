@@ -28,16 +28,24 @@ class Tetris:
                     block_rect = pygame.Rect(left, top, size, size)
                     pygame.draw.rect(self.surface, color, block_rect)
                     
-    def input(self, key):
+    def input(self, type, key):
+        if type == pygame.KEYDOWN:
+            if key == pygame.K_UP:
+                self.currentBlock.rotate()
+            
+            if key == pygame.K_LEFT:
+                self.currentBlock.move_left()
+            
+            if key == pygame.K_RIGHT:
+                self.currentBlock.move_right()
+            
+            if key == pygame.K_DOWN:
+                self.currentBlock.speed_up()
+            else:
+                self.currentBlock.slow_down()
         
-        if key == pygame.K_UP:
-            self.currentBlock.rotate()
-        
-        if key == pygame.K_LEFT:
-            self.currentBlock.move_left()
-        
-        if key == pygame.K_RIGHT:
-            self.currentBlock.move_right()
+        if type == pygame.KEYUP:
+            self.currentBlock.slow_down()
     
     def update_grid(self, tiles_pos, color):
         for (r,c) in tiles_pos:

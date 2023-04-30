@@ -13,7 +13,7 @@ class Block:
         self.startPoint = pygame.math.Vector2(GAME_BORDER + TILE_SIZE * int(NUM_COLS//3), GAME_BORDER)
         self.surface = pygame.display.get_surface()
         self.lastMoveTime = pygame.time.get_ticks()
-        self.cooldown = 500
+        self.cooldown = COOLDOWN_PERIOD
         self.freeze = False
         self.tiles_pos = self.get_tiles_pos()
     
@@ -116,3 +116,9 @@ class Block:
         self.startPoint += direction
         self.tiles_pos = self.get_tiles_pos()
         # self.check_collision()
+    
+    def speed_up(self):
+        self.cooldown = int(COOLDOWN_PERIOD/10)
+        
+    def slow_down(self):
+        self.cooldown = COOLDOWN_PERIOD
