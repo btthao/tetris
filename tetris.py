@@ -10,7 +10,7 @@ class Tetris:
         self.currentBlock = Block(self.grid)
         self.nextBlock = Block(self.grid)
         self.gameOver = False
-        self.score = 20
+        self.score = 0
         
     def draw_grid(self):
         for r in range(0, NUM_ROWS+1):
@@ -50,13 +50,30 @@ class Tetris:
         if type == pygame.KEYUP:
             self.currentBlock.slow_down()
     
-    def update_grid(self, tiles_pos, color):
+    def place_block_in_grid(self, tiles_pos, color):
         for (r,c) in tiles_pos:
             if (self.grid[r][c]):
                 print('gameover')
                 self.gameOver = True
             self.grid[r][c] = color
-            
+    
+    def update_grid(self):
+        current_lines = []
+        empty_lines = []
+        for row in self.grid:
+            full_row = True
+            for col in row:
+                if not col:
+                    full_row = False
+                    break
+            if full_row:
+                self.score += 40
+                empty_lines.append([0 for c in range(NUM_COLS)])
+            else:
+                current_lines.append(row)
+                
+        self.grid = empty_lines + current_lines
+
     def text(self, text, pos, size = 40):
         font = pygame.font.Font(FONT, size)
         text_surface = font.render(text, False, TEXT_COLOR)
@@ -83,7 +100,9 @@ class Tetris:
         self.currentBlock.move_down()
         
         if self.currentBlock.freeze:
-            self.update_grid(self.currentBlock.tiles_pos, self.currentBlock.color)
+            self.place_block_in_grid(self.currentBlock.tiles_pos, self.currentBlock.color)
+            self.update_grid()
             del self.currentBlock
             self.currentBlock = self.nextBlock
+            self.currentBlock.grid = self.grid
             self.nextBlock = Block(self.grid)
