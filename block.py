@@ -20,10 +20,10 @@ class Block:
     def __del__(self):
       print('Object gets destroyed')
 
-    def draw(self):
+    def draw(self, offset = (0,0)):
         for (r,c) in self.tiles_pos:
-            left = GAME_BORDER + c*TILE_SIZE + TILE_BORDER
-            top = GAME_BORDER + r*TILE_SIZE + TILE_BORDER
+            left = GAME_BORDER + c*TILE_SIZE + TILE_BORDER + offset[0]
+            top = GAME_BORDER + r*TILE_SIZE + TILE_BORDER + offset[1]
             size = TILE_SIZE - TILE_BORDER
             block_rect = pygame.Rect(left, top, size, size)
             pygame.draw.rect(self.surface, self.color, block_rect)
