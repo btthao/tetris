@@ -3,9 +3,9 @@ from settings import *
 from random import randrange
 
 class Block:
-    def __init__(self, grid):
+    def __init__(self, game):
         choice = randrange(len(SHAPES))
-        self.grid = grid
+        self.game = game
         self.shape = SHAPES[choice]
         self.color = COLORS[choice]
         self.rotatedShapes = self.create_block_rotations()
@@ -60,7 +60,7 @@ class Block:
             tilesPos = self.tiles_pos
             
         for (row,col) in tilesPos:
-            if col < 0 or col >= NUM_COLS or row < 0 or row >= NUM_ROWS or self.grid[row][col]:
+            if col < 0 or col >= NUM_COLS or row < 0 or row >= NUM_ROWS or self.game.grid[row][col]:
                 return True
         
         return False
@@ -83,13 +83,13 @@ class Block:
     def check_can_move(self, direction):
         for (row,col) in self.tiles_pos:
             if direction == 'left':
-                if col <= 0 or self.grid[row][col-1]:
+                if col <= 0 or self.game.grid[row][col-1]:
                     return False
             if direction == 'right':
-                if col >= NUM_COLS - 1 or self.grid[row][col+1]:
+                if col >= NUM_COLS - 1 or self.game.grid[row][col+1]:
                     return False
             if direction == 'down':
-                if row >= NUM_ROWS - 1 or self.grid[row+1][col]:
+                if row >= NUM_ROWS - 1 or self.game.grid[row+1][col]:
                     return False
         return True
     
