@@ -102,7 +102,7 @@ class Tetris:
                 self.grid[r] = self.grid[filled_row]
                 for c in range(NUM_COLS):
                     if self.grid[r][c]:
-                        self.grid[r][c].change_position(r,c)
+                        self.grid[r][c].update_position(r,c)
                 r -= 1
 
             filled_row -= 1

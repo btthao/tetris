@@ -8,8 +8,6 @@ class Block:
         self.game = game
         self.shape = SHAPES[choice]
         self.color = COLORS[choice]
-        self.rotatedShapes = self.create_block_rotations()
-        self.index = 0
         self.startPoint = pygame.math.Vector2(GAME_BORDER + TILE_SIZE * int(NUM_COLS//3), GAME_BORDER)
         self.surface = pygame.display.get_surface()
         self.lastMoveTime = pygame.time.get_ticks()
@@ -28,31 +26,16 @@ class Block:
             block_rect = pygame.Rect(left, top, size, size)
             pygame.draw.rect(self.surface, self.color, block_rect)
 
-    def create_block_rotations(self):
-        rotations = [self.shape]
-        curr = self.shape
-        
-        for i in range(3):
-            rotated_right_shape = [list(row) for row in zip(*curr[::-1])]
-            rotations.append(rotated_right_shape)
-            curr = rotated_right_shape
-
-        return rotations
     
     def rotate(self):
         if self.freeze:
             return
 
-        newIdx = self.index + 1
-        
-        if newIdx > 3:
-            newIdx = 0
-        
-        newTilesPos = self.get_tiles_pos(self.rotatedShapes[newIdx])
+        newShape = [list(row) for row in zip(*self.shape[::-1])]
+        newTilesPos = self.get_tiles_pos(newShape)
         
         if not self.check_collision(newTilesPos):
-            self.index = newIdx
-            self.shape = self.rotatedShapes[newIdx]
+            self.shape = newShape
             self.tiles_pos = newTilesPos
     
     def check_collision(self, tilesPos = None):
@@ -115,7 +98,6 @@ class Block:
         self.lastMoveTime = pygame.time.get_ticks()
         self.startPoint += direction
         self.tiles_pos = self.get_tiles_pos()
-        # self.check_collision()
     
     def speed_up(self):
         self.cooldown = int(COOLDOWN_PERIOD/10)

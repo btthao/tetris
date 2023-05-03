@@ -3,11 +3,10 @@ from settings import *
 
 class Tile():
     def __init__(self, r, c, color):
-        self.left = GAME_BORDER + c*TILE_SIZE + TILE_BORDER
-        self.top = GAME_BORDER + r*TILE_SIZE + TILE_BORDER
+        self.surface = pygame.display.get_surface()
         self.size = TILE_SIZE - TILE_BORDER
         self.color = color
-        self.surface = pygame.display.get_surface()
+        self.update_position(r, c)
 
     def draw(self):
         block_rect = pygame.Rect(self.left, self.top, self.size, self.size)
@@ -18,7 +17,7 @@ class Tile():
         self.top += 1
         self.size -= 2
         
-    def change_position(self, r, c):
+    def update_position(self, r, c):
         self.left = GAME_BORDER + c*TILE_SIZE + TILE_BORDER
         self.top = GAME_BORDER + r*TILE_SIZE + TILE_BORDER
     
