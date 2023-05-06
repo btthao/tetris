@@ -9,8 +9,8 @@ class Tile():
         self.update_position(r, c)
 
     def draw(self):
-        block_rect = pygame.Rect(self.left, self.top, self.size, self.size)
-        pygame.draw.rect(self.surface, self.color, block_rect)
+        tile_rect = pygame.Rect(self.left, self.top, self.size, self.size)
+        pygame.draw.rect(self.surface, self.color, tile_rect)
         
     def shrink(self):
         self.left += 1

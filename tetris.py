@@ -29,8 +29,9 @@ class Tetris:
                     self.grid[r][c].draw()
                     
     def input(self, type, key):
-        if self.counter > 0 or self.gameOverTimeStamp != None:
+        if not self.currentBlock or self.counter > 0 or self.gameOverTimeStamp != None:
             return
+        
         if type == pygame.KEYDOWN:
             if key == pygame.K_UP:
                 self.currentBlock.rotate()
@@ -43,8 +44,6 @@ class Tetris:
             
             if key == pygame.K_DOWN:
                 self.currentBlock.speed_up()
-            else:
-                self.currentBlock.slow_down()
         
         if type == pygame.KEYUP:
             self.currentBlock.slow_down()
@@ -52,7 +51,6 @@ class Tetris:
     def place_block_in_grid(self, tiles_pos, color):
         for (r,c) in tiles_pos:
             if (self.grid[r][c]):
-                print('gameover')
                 self.gameOverTimeStamp = pygame.time.get_ticks()
             self.grid[r][c] = Tile(r,c,color)
             
@@ -80,7 +78,7 @@ class Tetris:
                     self.grid[r][c].shrink()
 
         if finished:
-            self.move_tiles_to_bottom()
+            self.move_rows_to_bottom()
             self.get_score()
             self.full_rows = [False for r in range(NUM_ROWS)]
             self.isAnimating = False
@@ -90,7 +88,7 @@ class Tetris:
             if full_row:
                 self.score += 40
     
-    def move_tiles_to_bottom(self):
+    def move_rows_to_bottom(self):
         filled_row = NUM_ROWS - 1
         r = NUM_ROWS - 1
         while r >= 0:
@@ -118,8 +116,10 @@ class Tetris:
         x = int(INFO_AREA_WIDTH/2) + WIDTH + 1.5*GAME_BORDER
         y = GAME_BORDER + 20
         self.text('Next', (x,y))
+        self.nextBlock.draw()
         self.text('Score', (x,y + int(HEIGHT/2)))
         self.text(str(self.score), (x, y + int(HEIGHT/2) + 60), 28)
+        self.display_countdown()
     
     def countdown(self):
         if self.counter <= 0:
@@ -146,8 +146,6 @@ class Tetris:
         self.draw_grid_lines()
         self.draw_tiles()
         self.display_game_stat()
-        self.nextBlock.draw()
-        self.display_countdown()
         
         if self.isAnimating or self.counter > 0:
             return
