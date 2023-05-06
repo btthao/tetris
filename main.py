@@ -9,6 +9,7 @@ class Game:
         pygame.display.set_caption('Tetris')
         self.clock = pygame.time.Clock()
         self.tetris = Tetris()
+        pygame.time.set_timer(pygame.USEREVENT, 1000)
     
     def run(self):
         while True:
@@ -19,6 +20,9 @@ class Game:
                     
                 if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
                     self.tetris.input(event.type, event.key)
+                
+                if event.type == pygame.USEREVENT:
+                    self.tetris.countdown()
 
             self.screen.fill(BG_COLOR)
             self.tetris.update()

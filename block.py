@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 from random import randrange
+from math import ceil
 
 class Block:
     def __init__(self, game):
@@ -14,14 +15,17 @@ class Block:
         self.cooldown = COOLDOWN_PERIOD
         self.freeze = False
         self.tiles_pos = self.get_tiles_pos()
-    
-    def __del__(self):
-      print('Object gets destroyed')
+        self.isActive = False
 
-    def draw(self, offset = (0,0)):
+    def draw(self):
         for (r,c) in self.tiles_pos:
-            left = GAME_BORDER + c*TILE_SIZE + TILE_BORDER + offset[0]
-            top = GAME_BORDER + r*TILE_SIZE + TILE_BORDER + offset[1]
+            left = GAME_BORDER + c*TILE_SIZE + TILE_BORDER
+            top = GAME_BORDER + r*TILE_SIZE + TILE_BORDER
+            
+            if not self.isActive: 
+                left += (ceil(NUM_COLS*2/3) - (len(self.shape)-1)/2)*TILE_SIZE + INFO_AREA_WIDTH/2
+                top += GAME_BORDER + 60
+                
             size = TILE_SIZE - TILE_BORDER
             block_rect = pygame.Rect(left, top, size, size)
             pygame.draw.rect(self.surface, self.color, block_rect)

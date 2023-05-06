@@ -1,19 +1,19 @@
 import pygame
 from block import Block
 from settings import *
-from math import ceil
 from tile import Tile
 
 class Tetris:
     def __init__(self):
         self.surface = pygame.display.get_surface()
         self.grid = [[0 for c in range(NUM_COLS)] for r in range(NUM_ROWS)]
-        self.currentBlock = Block(self)
+        self.currentBlock = None
         self.nextBlock = Block(self)
-        self.gameOver = False
+        self.gameOverTimeStamp = None
         self.score = 0
         self.full_rows = [False for r in range(NUM_ROWS)]
         self.isAnimating = False
+        self.counter = 4
         
     def draw_grid_lines(self):
         for r in range(0, NUM_ROWS+1):
@@ -21,7 +21,6 @@ class Tetris:
             
         for c in range(0, NUM_COLS+1):
             pygame.draw.line(self.surface, LINE_COLOR, (GAME_BORDER + c * TILE_SIZE, GAME_BORDER), (GAME_BORDER + c * TILE_SIZE, HEIGHT + GAME_BORDER))
-            
         
     def draw_tiles(self):
         for r in range(0, NUM_ROWS):
@@ -30,6 +29,8 @@ class Tetris:
                     self.grid[r][c].draw()
                     
     def input(self, type, key):
+        if self.counter > 0 or self.gameOverTimeStamp != None:
+            return
         if type == pygame.KEYDOWN:
             if key == pygame.K_UP:
                 self.currentBlock.rotate()
@@ -52,7 +53,7 @@ class Tetris:
         for (r,c) in tiles_pos:
             if (self.grid[r][c]):
                 print('gameover')
-                self.gameOver = True
+                self.gameOverTimeStamp = pygame.time.get_ticks()
             self.grid[r][c] = Tile(r,c,color)
             
     def check_full_rows(self):
@@ -119,15 +120,44 @@ class Tetris:
         self.text('Next', (x,y))
         self.text('Score', (x,y + int(HEIGHT/2)))
         self.text(str(self.score), (x, y + int(HEIGHT/2) + 60), 28)
-            
+    
+    def countdown(self):
+        if self.counter <= 0:
+            return
+        self.counter -= 1
+    
+    def new_block(self):
+        del self.currentBlock
+        self.currentBlock = self.nextBlock
+        self.currentBlock.isActive = True
+        self.nextBlock = Block(self)
+    
+    def newGame(self):
+        self.text('Game over', (GAME_BORDER + WIDTH//2, HEIGHT//2.5), 35)
+        if pygame.time.get_ticks() - self.gameOverTimeStamp > 3000:
+            self.__init__()
+    
+    def display_countdown(self):
+        if self.counter > 0 and self.counter <= 3:
+            self.text(str(self.counter), (GAME_BORDER + WIDTH//2, HEIGHT//2.5))
+    
     def update(self):
         self.clear_full_rows()
         self.draw_grid_lines()
         self.draw_tiles()
         self.display_game_stat()
-        self.nextBlock.draw((int((ceil(NUM_COLS*2/3) - (len(self.nextBlock.shape)-1)/2)*TILE_SIZE + INFO_AREA_WIDTH/2), GAME_BORDER + 60))
+        self.nextBlock.draw()
+        self.display_countdown()
         
-        if self.gameOver or self.isAnimating:
+        if self.isAnimating or self.counter > 0:
+            return
+        
+        if self.gameOverTimeStamp != None:
+            self.newGame()
+            return
+
+        if not self.currentBlock:
+            self.new_block()
             return
         
         self.currentBlock.draw()
@@ -136,6 +166,4 @@ class Tetris:
         if self.currentBlock.freeze:
             self.place_block_in_grid(self.currentBlock.tiles_pos, self.currentBlock.color)
             self.check_full_rows()
-            del self.currentBlock
-            self.currentBlock = self.nextBlock
-            self.nextBlock = Block(self)
+            self.new_block()
